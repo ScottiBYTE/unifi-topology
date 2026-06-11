@@ -8,6 +8,9 @@
     "site": "default",
     "insecureSSL": true,
     "pollSeconds": 30
+  },
+  "blastRadius": {
+    "enabled": false,
+    "baseUrl": "http://YOUR_BLAST_RADIUS_HOST:3050"
   }
 }
-

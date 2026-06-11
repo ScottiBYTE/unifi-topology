@@ -99,7 +99,7 @@ function setupHeaderActions() {
 
   actions.innerHTML = `
     <a class="header-link github-link" href="${APP_LINKS.github}" target="_blank" rel="noopener noreferrer" title="Open GitHub repository">
-      GitHub v1.0.0
+      GitHub v1.0.1
     </a>
     <a class="header-link donate-link" href="${APP_LINKS.donate}" target="_blank" rel="noopener noreferrer" title="Support ScottiBYTE">
       ❤ Donate
