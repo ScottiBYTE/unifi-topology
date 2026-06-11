@@ -1,0 +1,1492 @@
+:root {
+  --bg: #020617;
+  --panel: #111827;
+  --panel2: #1f2937;
+  --panel3: #0f172a;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #38bdf8;
+  --good: #22c55e;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+  --border: rgba(255,255,255,0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(56,189,248,0.12), transparent 36rem),
+    linear-gradient(180deg, #020617, #030712);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* =========================================================
+   App shell
+   ========================================================= */
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(2, 6, 23, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(12px);
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.7rem;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+p {
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100vh - 91px);
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  overflow: auto;
+}
+
+.panel,
+.topology-panel {
+  background: linear-gradient(180deg, rgba(31,41,55,0.94), rgba(17,24,39,0.94));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+.panel {
+  padding: 1rem;
+}
+
+.topology-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.status-pill {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--muted);
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.status-pill.good {
+  color: var(--good);
+  border-color: rgba(34,197,94,0.35);
+  background: rgba(34,197,94,0.08);
+}
+
+.status-pill.bad {
+  color: var(--bad);
+  border-color: rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.08);
+}
+
+.button-row,
+.toolbar-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+button {
+  border: 1px solid rgba(56,189,248,0.35);
+  background: rgba(56,189,248,0.12);
+  color: var(--text);
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+button:hover {
+  background: rgba(56,189,248,0.22);
+}
+
+.control-group {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  color: var(--muted);
+}
+
+.control-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.mini-card {
+  border: 1px solid var(--border);
+  background: rgba(2,6,23,0.45);
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.mini-card .num {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.mini-card .label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+/* =========================================================
+   Legend
+   ========================================================= */
+
+.legend-list {
+  display: grid;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #dbeafe;
+  font-size: 13px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.18);
+  flex: 0 0 14px;
+}
+
+.legend-swatch.internet { background: linear-gradient(135deg, #dc2626, #7f1d1d); }
+.legend-swatch.gateway  { background: linear-gradient(135deg, #4f46e5, #312e81); }
+.legend-swatch.switch   { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+.legend-swatch.ap       { background: linear-gradient(135deg, #a855f7, #6d28d9); border-radius: 999px; }
+.legend-swatch.port-group,
+.legend-swatch.ports    { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.legend-swatch.port     { background: linear-gradient(135deg, #60a5fa, #334155); }
+.legend-swatch.client   { background: linear-gradient(135deg, #64748b, #334155); }
+.legend-swatch.incus    { background: linear-gradient(135deg, #f59e0b, #92400e); }
+
+.legend-note {
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #9fb3d9;
+}
+
+/* =========================================================
+   Toolbar / topology canvas
+   ========================================================= */
+
+.topology-toolbar {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  background: rgba(2,6,23,0.35);
+}
+
+.toolbar-buttons button:first-child,
+.toolbar-buttons button:nth-child(2) {
+  min-width: 2.3rem;
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
+}
+
+.topology-canvas {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  cursor: grab;
+  touch-action: none;
+  min-height: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-color: rgba(2,6,23,0.44);
+  scrollbar-color: rgba(56,189,248,0.45) rgba(2,6,23,0.55);
+  scrollbar-width: thin;
+}
+
+.topology-canvas.dragging {
+  cursor: grabbing;
+}
+
+.topology-canvas::-webkit-scrollbar,
+.side-panel::-webkit-scrollbar,
+pre::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.topology-canvas::-webkit-scrollbar-track,
+.side-panel::-webkit-scrollbar-track,
+pre::-webkit-scrollbar-track {
+  background: rgba(2,6,23,0.55);
+  border-radius: 999px;
+}
+
+.topology-canvas::-webkit-scrollbar-thumb,
+.side-panel::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb {
+  background: rgba(56,189,248,0.36);
+  border-radius: 999px;
+  border: 3px solid rgba(2,6,23,0.75);
+}
+
+.topology-canvas::-webkit-scrollbar-thumb:hover,
+.side-panel::-webkit-scrollbar-thumb:hover,
+pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(56,189,248,0.58);
+}
+
+.loading {
+  color: var(--muted);
+}
+
+/* =========================================================
+   Version badges
+   ========================================================= */
+
+.version-badges {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #bfdbfe;
+  border: 1px solid rgba(34,197,94,0.35);
+  background: rgba(34,197,94,0.08);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.version-badge strong {
+  color: #86efac;
+}
+
+.version-badge:hover {
+  background: rgba(34,197,94,0.16);
+  border-color: rgba(34,197,94,0.55);
+  transform: translateY(-1px);
+}
+
+#lastRefresh {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* =========================================================
+   Graph world
+   ========================================================= */
+
+.topology-world,
+.graph-world {
+  transform-origin: 0 0;
+  position: relative;
+  width: max-content;
+  min-width: max-content;
+  min-height: auto !important;
+  padding: 1.25rem 2rem 2rem 1.25rem !important;
+}
+
+.graph-world .gateway-banner {
+  width: 1080px;
+  min-width: 1080px;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(56,189,248,0.35);
+  background:
+    linear-gradient(90deg, rgba(8,47,73,0.45), rgba(15,23,42,0.88)),
+    radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 28rem);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  box-shadow: 0 18px 38px rgba(0,0,0,0.25);
+  position: relative;
+  z-index: 2;
+}
+
+.gateway-eyebrow {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.gateway-banner-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.gateway-banner-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.gateway-banner-status {
+  color: var(--good);
+  border: 1px solid rgba(34,197,94,0.35);
+  background: rgba(34,197,94,0.08);
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.graph-map {
+  position: relative;
+  margin-top: 0.6rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  overflow: visible;
+}
+
+.graph-link-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none !important;
+  overflow: visible;
+  z-index: 1;
+}
+
+.graph-link {
+  fill: none;
+  stroke-width: 2.1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none !important;
+  stroke-dasharray: none !important;
+}
+
+.graph-link.wan-link         { stroke: rgba(239,68,68,0.62); }
+.graph-link.switch-link      { stroke: rgba(34,197,94,0.68); stroke-width: 2.4; }
+.graph-link.ap-link,
+.graph-link.ssid-link        { stroke: rgba(192,132,252,0.66); }
+.graph-link.port-link        { stroke: rgba(96,165,250,0.60); }
+.graph-link.client-link,
+.graph-link.wifi-client-link { stroke: rgba(148,163,184,0.45); }
+.graph-link.incus-link       { stroke: rgba(245,158,11,0.48); stroke-width: 1.8; }
+.graph-link.smart-link       { stroke: rgba(251,191,36,0.62); }
+
+/* =========================================================
+   Graph node base
+   ========================================================= */
+
+.graph-node {
+  position: absolute !important;
+  z-index: 3;
+  width: 285px !important;
+  min-height: 92px;
+  padding: 0.72rem 74px 0.72rem 0.78rem !important;
+  border-width: 1.5px !important;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(17,24,39,0.96));
+  border: 1px solid rgba(56,189,248,0.28);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 10px 24px rgba(0,0,0,0.34) !important;
+  box-sizing: border-box;
+}
+
+.graph-node,
+.graph-node * {
+  pointer-events: auto;
+}
+
+.graph-node.expandable {
+  cursor: pointer;
+}
+
+.graph-node:hover {
+  border-color: rgba(96,165,250,0.9);
+  box-shadow:
+    0 0 0 2px rgba(96,165,250,0.18),
+    0 18px 38px rgba(0,0,0,0.35) !important;
+}
+
+.graph-node.collapsed-node {
+  border-style: dashed;
+}
+
+.graph-node .node-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding-right: 1.7rem !important;
+  color: #f8fafc !important;
+  font-size: 0.82rem;
+  font-weight: 800 !important;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+
+.graph-node .node-detail {
+  color: rgba(226,232,240,0.88) !important;
+  font-size: 0.69rem;
+  line-height: 1.28;
+}
+
+.graph-node .node-status {
+  margin-top: 0.45rem;
+  color: #22c55e !important;
+  font-size: 0.69rem;
+  font-weight: 800 !important;
+}
+
+.node-kind,
+.node-type-badge {
+  position: absolute !important;
+  top: 8px !important;
+  right: 34px !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase;
+  border: 1px solid rgba(148,163,184,0.35);
+  background: rgba(15,23,42,0.76);
+  color: #dbeafe;
+}
+
+.graph-toggle {
+  position: absolute !important;
+  top: 7px !important;
+  right: 8px !important;
+  z-index: 5 !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(148,163,184,0.35);
+  color: #bfdbfe;
+  background: rgba(15,23,42,0.78);
+  font-size: 0.7rem !important;
+  font-weight: 900;
+  pointer-events: none !important;
+}
+
+.graph-toggle:hover {
+  border-color: rgba(96,165,250,0.95);
+  background: rgba(56,189,248,0.22);
+}
+
+/* =========================================================
+   High-contrast node palette
+   ========================================================= */
+
+/* Internet / WAN = dark red */
+.graph-node.type-wan,
+.graph-node.internet-node {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(239,68,68,0.18), transparent 34%),
+    linear-gradient(135deg, rgba(80,18,18,0.94), rgba(25,10,10,0.98)) !important;
+  border-color: #ef4444 !important;
+  border-style: solid !important;
+  box-shadow:
+    inset 8px 0 0 rgba(239,68,68,0.95),
+    0 0 0 1px rgba(239,68,68,0.18),
+    0 10px 24px rgba(0,0,0,0.36) !important;
+}
+
+.graph-node.type-wan .node-type-badge,
+.graph-node.internet-node .node-type-badge,
+.graph-node.type-wan .node-kind,
+.graph-node.internet-node .node-kind {
+  background: #dc2626 !important;
+  border-color: #fecaca !important;
+  color: #fff5f5 !important;
+}
+
+/* Gateway = indigo */
+.graph-node.type-gateway,
+.graph-node.gateway-node {
+  background:
+    radial-gradient(circle at 84% 20%, rgba(99,102,241,0.20), transparent 34%),
+    linear-gradient(135deg, rgba(49,46,129,0.94), rgba(12,18,40,0.98)) !important;
+  border-color: #818cf8 !important;
+  box-shadow:
+    inset 8px 0 0 rgba(99,102,241,0.95),
+    0 0 0 1px rgba(129,140,248,0.18),
+    0 10px 24px rgba(0,0,0,0.36) !important;
+}
+
+.graph-node.type-gateway .node-type-badge,
+.graph-node.gateway-node .node-type-badge,
+.graph-node.type-gateway .node-kind,
+.graph-node.gateway-node .node-kind {
+  background: #4f46e5 !important;
+  border-color: #c7d2fe !important;
+  color: #eef2ff !important;
+}
+
+/* Switch = teal */
+.graph-node.type-switch,
+.graph-node.switch-node {
+  background:
+    radial-gradient(circle at 82% 22%, rgba(45,212,191,0.18), transparent 36%),
+    linear-gradient(135deg, rgba(10,78,83,0.94), rgba(5,36,52,0.98)) !important;
+  border-color: #2dd4bf !important;
+  box-shadow:
+    inset 8px 0 0 rgba(45,212,191,0.95),
+    0 0 0 1px rgba(45,212,191,0.18),
+    0 10px 24px rgba(0,0,0,0.36) !important;
+}
+
+.graph-node.type-switch .node-type-badge,
+.graph-node.switch-node .node-type-badge,
+.graph-node.type-switch .node-kind,
+.graph-node.switch-node .node-kind {
+  background: #14b8a6 !important;
+  border-color: #99f6e4 !important;
+  color: #ecfeff !important;
+}
+
+/* Access Point = purple */
+.graph-node.type-ap,
+.graph-node.ap-node {
+  background:
+    radial-gradient(circle at 84% 22%, rgba(216,180,254,0.22), transparent 34%),
+    linear-gradient(135deg, rgba(76,29,149,0.94), rgba(36,18,66,0.98)) !important;
+  border-color: #c084fc !important;
+  box-shadow:
+    inset 8px 0 0 rgba(192,132,252,0.95),
+    0 0 0 1px rgba(192,132,252,0.18),
+    0 10px 24px rgba(0,0,0,0.36) !important;
+}
+
+.graph-node.type-ap .node-type-badge,
+.graph-node.ap-node .node-type-badge,
+.graph-node.type-ap .node-kind,
+.graph-node.ap-node .node-kind {
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background: #a855f7 !important;
+  border-color: #e9d5ff !important;
+  color: #faf5ff !important;
+}
+
+/* Port Group = cobalt blue dashed */
+.graph-node.type-ports,
+.graph-node.ports-group-node,
+.graph-node.port-group-node {
+  background:
+    radial-gradient(circle at 84% 18%, rgba(96,165,250,0.16), transparent 30%),
+    linear-gradient(135deg, rgba(19,52,115,0.94), rgba(8,24,54,0.98)) !important;
+  border-color: #60a5fa !important;
+  border-style: dashed !important;
+  box-shadow:
+    inset 8px 0 0 rgba(59,130,246,0.95),
+    0 0 0 1px rgba(96,165,250,0.18),
+    0 10px 24px rgba(0,0,0,0.34) !important;
+}
+
+.graph-node.type-ports .node-type-badge,
+.graph-node.ports-group-node .node-type-badge,
+.graph-node.port-group-node .node-type-badge,
+.graph-node.type-ports .node-kind,
+.graph-node.ports-group-node .node-kind,
+.graph-node.port-group-node .node-kind {
+  background: #3b82f6 !important;
+  border-color: #bfdbfe !important;
+  color: #eff6ff !important;
+}
+
+/* Individual Port = steel blue */
+.graph-node.type-port,
+.graph-node.port-node {
+  min-height: 138px !important;
+  background:
+    radial-gradient(circle at 84% 18%, rgba(148,163,184,0.10), transparent 28%),
+    linear-gradient(135deg, rgba(30,58,138,0.82), rgba(15,23,42,0.96)) !important;
+  border-color: #93c5fd !important;
+  box-shadow:
+    inset 6px 0 0 rgba(96,165,250,0.85),
+    0 0 0 1px rgba(147,197,253,0.16),
+    0 10px 22px rgba(0,0,0,0.30) !important;
+}
+
+.graph-node.type-port .node-type-badge,
+.graph-node.port-node .node-type-badge,
+.graph-node.type-port .node-kind,
+.graph-node.port-node .node-kind {
+  background: #2563eb !important;
+  border-color: #dbeafe !important;
+  color: #eff6ff !important;
+}
+
+/* Regular Client = neutral gray */
+.graph-node.type-client,
+.graph-node.client-node,
+.graph-node.wired-client-node,
+.graph-node.wifi-client-node {
+  background:
+    radial-gradient(circle at 84% 18%, rgba(148,163,184,0.12), transparent 30%),
+    linear-gradient(135deg, rgba(51,65,85,0.94), rgba(15,23,42,0.98)) !important;
+  border-color: #94a3b8 !important;
+  box-shadow:
+    inset 6px 0 0 rgba(100,116,139,0.92),
+    0 0 0 1px rgba(148,163,184,0.16),
+    0 10px 22px rgba(0,0,0,0.30) !important;
+}
+
+.graph-node.type-client .node-type-badge,
+.graph-node.client-node .node-type-badge,
+.graph-node.wired-client-node .node-type-badge,
+.graph-node.wifi-client-node .node-type-badge,
+.graph-node.type-client .node-kind,
+.graph-node.client-node .node-kind,
+.graph-node.wired-client-node .node-kind,
+.graph-node.wifi-client-node .node-kind {
+  background: #475569 !important;
+  border-color: #cbd5e1 !important;
+  color: #f8fafc !important;
+}
+
+/* Incus / Service = amber gold */
+.graph-node.type-incus,
+.graph-node.type-service,
+.graph-node.incus-node,
+.graph-node.incus-instance-node {
+  background:
+    radial-gradient(circle at 84% 18%, rgba(251,191,36,0.14), transparent 32%),
+    linear-gradient(135deg, rgba(55,48,20,0.95), rgba(24,24,27,0.98)) !important;
+  border-color: #fbbf24 !important;
+  box-shadow:
+    inset 6px 0 0 rgba(245,158,11,0.95),
+    0 0 0 1px rgba(251,191,36,0.18),
+    0 10px 22px rgba(0,0,0,0.30) !important;
+}
+
+.graph-node.type-incus .node-type-badge,
+.graph-node.type-service .node-type-badge,
+.graph-node.incus-node .node-type-badge,
+.graph-node.incus-instance-node .node-type-badge,
+.graph-node.type-incus .node-kind,
+.graph-node.type-service .node-kind,
+.graph-node.incus-node .node-kind,
+.graph-node.incus-instance-node .node-kind {
+  background: #f59e0b !important;
+  border-color: #fde68a !important;
+  color: #1f2937 !important;
+}
+
+.graph-node.type-incus .node-detail,
+.graph-node.type-service .node-detail,
+.graph-node.incus-instance-node .node-detail {
+  color: #fed7aa !important;
+}
+
+/* Smart Device = lime utility */
+.graph-node.type-smart,
+.graph-node.smart-node {
+  background:
+    radial-gradient(circle at 84% 18%, rgba(190,242,100,0.12), transparent 32%),
+    linear-gradient(135deg, rgba(54,83,20,0.80), rgba(15,23,42,0.98)) !important;
+  border-color: #bef264 !important;
+  box-shadow:
+    inset 6px 0 0 rgba(132,204,22,0.85),
+    0 0 0 1px rgba(190,242,100,0.16),
+    0 10px 22px rgba(0,0,0,0.30) !important;
+}
+
+.graph-node.type-smart .node-type-badge,
+.graph-node.smart-node .node-type-badge,
+.graph-node.type-smart .node-kind,
+.graph-node.smart-node .node-kind {
+  background: #84cc16 !important;
+  border-color: #ecfccb !important;
+  color: #1a2e05 !important;
+}
+
+/* =========================================================
+   Compatibility with old ladder/export classes
+   ========================================================= */
+
+.node-card {
+  width: 255px;
+  border: 1px solid rgba(56,189,248,0.28);
+  background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(17,24,39,0.96));
+  border-radius: 14px;
+  padding: 0.7rem;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+  position: relative;
+}
+
+.node-card::before {
+  display: none;
+}
+
+.node-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  font-weight: 850;
+  font-size: 0.86rem;
+  margin-bottom: 0.4rem;
+}
+
+.node-kind {
+  color: var(--muted);
+  font-size: 0.68rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  white-space: nowrap;
+}
+
+.node-detail {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.node-status {
+  margin-top: 0.45rem;
+  color: var(--good);
+  font-weight: 750;
+  font-size: 0.72rem;
+}
+
+pre {
+  overflow: auto;
+  background: rgba(2,6,23,0.72);
+  border: 1px solid var(--border);
+  padding: 0.8rem;
+  border-radius: 12px;
+  color: #d1d5db;
+  font-size: 0.72rem;
+  max-height: 260px;
+}
+
+.small-note {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-top: 0.65rem;
+}
+
+@media (max-width: 1050px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .topology-panel {
+    height: 70vh;
+  }
+}
+
+/* Reduce visual clutter in very dense deep-expanded maps */
+.graph-link.client-link,
+.graph-link.wifi-client-link {
+  stroke: rgba(148,163,184,0.28) !important;
+  stroke-width: 1.4 !important;
+}
+
+.graph-link.incus-link {
+  stroke: rgba(245,158,11,0.34) !important;
+  stroke-width: 1.45 !important;
+}
+
+.graph-link.port-link {
+  stroke: rgba(96,165,250,0.42) !important;
+  stroke-width: 1.55 !important;
+}
+
+/* Optional service inventory toggle */
+#toggleServicesBtn.service-toggle-active {
+  border-color: rgba(245,158,11,0.75);
+  background: rgba(245,158,11,0.18);
+  color: #fde68a;
+}
+
+#toggleServicesBtn.service-toggle-active:hover {
+  background: rgba(245,158,11,0.26);
+}
+
+/* =========================================================
+   Header action buttons: GitHub / Donate / Light Mode
+   ========================================================= */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.header-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(56,189,248,0.35);
+  background: rgba(56,189,248,0.12);
+  color: #e5e7eb;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.header-link:hover {
+  background: rgba(56,189,248,0.22);
+  border-color: rgba(56,189,248,0.62);
+}
+
+.github-link {
+  border-color: rgba(148,163,184,0.42);
+  background: rgba(148,163,184,0.10);
+}
+
+.donate-link {
+  border-color: rgba(245,158,11,0.60);
+  background: rgba(245,158,11,0.14);
+  color: #fde68a;
+}
+
+.donate-link:hover {
+  background: rgba(245,158,11,0.24);
+  border-color: rgba(245,158,11,0.88);
+}
+
+.theme-toggle {
+  font-family: inherit;
+}
+
+/* =========================================================
+   Light mode
+   ========================================================= */
+
+body.light-mode {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --panel2: #e2e8f0;
+  --panel3: #f1f5f9;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #0284c7;
+  --good: #15803d;
+  --warn: #b45309;
+  --bad: #b91c1c;
+  --border: rgba(15,23,42,0.16);
+
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,0.18), transparent 34rem),
+    linear-gradient(180deg, #f8fafc, #e2e8f0);
+  color: var(--text);
+}
+
+body.light-mode .app-header {
+  background: rgba(248,250,252,0.92);
+  border-bottom-color: rgba(15,23,42,0.14);
+}
+
+body.light-mode .panel,
+body.light-mode .topology-panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(241,245,249,0.96));
+  border-color: rgba(15,23,42,0.14);
+  box-shadow: 0 18px 42px rgba(15,23,42,0.12);
+}
+
+body.light-mode .topology-toolbar {
+  background: rgba(241,245,249,0.72);
+  border-bottom-color: rgba(15,23,42,0.12);
+}
+
+body.light-mode .topology-canvas,
+body.light-mode .graph-map {
+  background-color: rgba(241,245,249,0.92);
+  background-image:
+    linear-gradient(rgba(15,23,42,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.06) 1px, transparent 1px);
+}
+
+body.light-mode .mini-card,
+body.light-mode pre {
+  background: rgba(255,255,255,0.78);
+  border-color: rgba(15,23,42,0.14);
+  color: #0f172a;
+}
+
+body.light-mode p,
+body.light-mode .node-detail,
+body.light-mode .small-note,
+body.light-mode .legend-note {
+  color: #475569;
+}
+
+body.light-mode .header-link,
+body.light-mode button {
+  color: #0f172a;
+  background: rgba(14,165,233,0.10);
+  border-color: rgba(2,132,199,0.32);
+}
+
+body.light-mode .header-link:hover,
+body.light-mode button:hover {
+  background: rgba(14,165,233,0.18);
+}
+
+body.light-mode .donate-link {
+  background: rgba(245,158,11,0.18);
+  border-color: rgba(180,83,9,0.42);
+  color: #78350f;
+}
+
+body.light-mode .status-pill.good {
+  color: #15803d;
+  background: rgba(34,197,94,0.12);
+  border-color: rgba(21,128,61,0.32);
+}
+
+/* Keep graph cards vivid in light mode, but slightly reduce shadow harshness */
+body.light-mode .graph-node {
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,0.05),
+    0 10px 22px rgba(15,23,42,0.16) !important;
+}
+
+body.light-mode .gateway-banner {
+  background:
+    linear-gradient(90deg, rgba(224,242,254,0.90), rgba(255,255,255,0.92)),
+    radial-gradient(circle at top left, rgba(14,165,233,0.20), transparent 28rem);
+  border-color: rgba(2,132,199,0.28);
+  color: #0f172a;
+}
+
+body.light-mode .gateway-banner-subtitle {
+  color: #475569;
+}
+
+@media (max-width: 900px) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* =========================================================
+   UniFi Statistics-style header action buttons
+   ========================================================= */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+/* GitHub and Donate behave like clean text links */
+.header-actions .github-link,
+.header-actions .donate-link {
+  min-height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+.header-actions .github-link {
+  color: #60a5fa !important;
+}
+
+.header-actions .github-link:hover {
+  color: #93c5fd !important;
+  text-decoration: underline !important;
+}
+
+.header-actions .donate-link {
+  color: #f87171 !important;
+}
+
+.header-actions .donate-link:hover {
+  color: #fca5a5 !important;
+  text-decoration: underline !important;
+}
+
+/* Light/Dark remains a blue rounded button like UniFi Statistics */
+.header-actions .theme-toggle {
+  min-height: 34px !important;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(96,165,250,0.65) !important;
+  background: linear-gradient(180deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+  font-size: 0.88rem !important;
+  font-weight: 850 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 8px 18px rgba(37,99,235,0.22) !important;
+}
+
+.header-actions .theme-toggle:hover {
+  background: linear-gradient(180deg, #60a5fa, #2563eb) !important;
+  border-color: rgba(147,197,253,0.9) !important;
+}
+
+/* Light mode header action adjustments */
+body.light-mode .header-actions .github-link {
+  color: #2563eb !important;
+}
+
+body.light-mode .header-actions .donate-link {
+  color: #dc2626 !important;
+}
+
+body.light-mode .header-actions .theme-toggle {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #3b82f6, #2563eb) !important;
+  border-color: rgba(37,99,235,0.65) !important;
+}
+
+/* =========================================================
+   Light mode refinement: darker blue-gray, less white
+   ========================================================= */
+
+body.light-mode {
+  --bg: #d8e1ec;
+  --panel: #e2e8f0;
+  --panel2: #cbd5e1;
+  --panel3: #dbe4ee;
+  --text: #0f172a;
+  --muted: #334155;
+  --accent: #0369a1;
+  --good: #15803d;
+  --warn: #b45309;
+  --bad: #b91c1c;
+  --border: rgba(15,23,42,0.20);
+
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,0.14), transparent 34rem),
+    linear-gradient(180deg, #cbd5e1, #b8c4d3) !important;
+  color: var(--text);
+}
+
+body.light-mode .app-header {
+  background: rgba(203,213,225,0.96) !important;
+  border-bottom-color: rgba(15,23,42,0.18) !important;
+}
+
+body.light-mode .panel,
+body.light-mode .topology-panel {
+  background:
+    linear-gradient(180deg, rgba(226,232,240,0.96), rgba(203,213,225,0.96)) !important;
+  border-color: rgba(15,23,42,0.20) !important;
+  box-shadow: 0 18px 42px rgba(15,23,42,0.16) !important;
+}
+
+body.light-mode .topology-toolbar {
+  background: rgba(203,213,225,0.88) !important;
+  border-bottom-color: rgba(15,23,42,0.18) !important;
+}
+
+/* Make the canvas blue-gray instead of white */
+body.light-mode .topology-canvas,
+body.light-mode .graph-map {
+  background-color: #d3dde8 !important;
+  background-image:
+    linear-gradient(rgba(15,23,42,0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.075) 1px, transparent 1px) !important;
+}
+
+/* Gateway banner should also be blue-gray, not white */
+body.light-mode .graph-world .gateway-banner {
+  background:
+    linear-gradient(90deg, rgba(186,201,218,0.96), rgba(214,224,235,0.96)),
+    radial-gradient(circle at top left, rgba(14,165,233,0.18), transparent 28rem) !important;
+  border-color: rgba(2,132,199,0.34) !important;
+  color: #0f172a !important;
+  box-shadow: 0 16px 34px rgba(15,23,42,0.14) !important;
+}
+
+body.light-mode .mini-card,
+body.light-mode pre {
+  background: rgba(226,232,240,0.82) !important;
+  border-color: rgba(15,23,42,0.18) !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar controls should have more contrast */
+body.light-mode .side-panel .panel {
+  background:
+    linear-gradient(180deg, rgba(226,232,240,0.98), rgba(203,213,225,0.98)) !important;
+}
+
+body.light-mode .legend-item {
+  color: #1e293b !important;
+}
+
+body.light-mode p,
+body.light-mode .small-note,
+body.light-mode .legend-note,
+body.light-mode .gateway-banner-subtitle {
+  color: #334155 !important;
+}
+
+/* Buttons: darker blue-gray outline, less pale */
+body.light-mode button,
+body.light-mode .header-link {
+  color: #0f172a !important;
+  background: rgba(148,163,184,0.24) !important;
+  border-color: rgba(51,65,85,0.28) !important;
+}
+
+body.light-mode button:hover,
+body.light-mode .header-link:hover {
+  background: rgba(100,116,139,0.24) !important;
+  border-color: rgba(51,65,85,0.42) !important;
+}
+
+/* Keep the Light/Dark button as a real blue action button */
+body.light-mode .header-actions .theme-toggle {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #2563eb, #1d4ed8) !important;
+  border-color: rgba(30,64,175,0.72) !important;
+}
+
+/* Status pill should not disappear on light background */
+body.light-mode .status-pill.good {
+  color: #166534 !important;
+  background: rgba(34,197,94,0.18) !important;
+  border-color: rgba(21,128,61,0.36) !important;
+}
+
+/* Version badges were too pale in light mode */
+body.light-mode .version-badge {
+  color: #0f172a !important;
+  background: rgba(34,197,94,0.16) !important;
+  border-color: rgba(21,128,61,0.34) !important;
+}
+
+body.light-mode .version-badge strong {
+  color: #166534 !important;
+}
+
+/* Scrollbar should be visible but not harsh */
+body.light-mode .topology-canvas {
+  scrollbar-color: rgba(51,65,85,0.45) rgba(203,213,225,0.75);
+}
+
+body.light-mode .topology-canvas::-webkit-scrollbar-track {
+  background: rgba(203,213,225,0.75) !important;
+}
+
+body.light-mode .topology-canvas::-webkit-scrollbar-thumb {
+  background: rgba(51,65,85,0.38) !important;
+  border-color: rgba(203,213,225,0.90) !important;
+}
+
+
+/* =========================================================
+   Light mode final: darker blue-gray dashboard, less white
+   ========================================================= */
+
+body.light-mode {
+  --bg: #9fb0c2;
+  --panel: #b8c4d3;
+  --panel2: #9fb0c2;
+  --panel3: #aab8c9;
+  --text: #0f172a;
+  --muted: #1e293b;
+  --accent: #075985;
+  --border: rgba(15,23,42,0.28);
+
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,0.12), transparent 34rem),
+    linear-gradient(180deg, #aab8c9, #8fa1b5) !important;
+  color: var(--text);
+}
+
+body.light-mode .app-header {
+  background: #aab8c9 !important;
+  border-bottom-color: rgba(15,23,42,0.26) !important;
+}
+
+body.light-mode .app-shell {
+  background: #9fb0c2 !important;
+}
+
+/* Side panels: stronger contrast and less white */
+body.light-mode .panel,
+body.light-mode .topology-panel {
+  background:
+    linear-gradient(180deg, rgba(176,190,207,0.98), rgba(151,168,188,0.98)) !important;
+  border-color: rgba(15,23,42,0.28) !important;
+  box-shadow: 0 18px 42px rgba(15,23,42,0.20) !important;
+}
+
+body.light-mode .topology-toolbar {
+  background: rgba(151,168,188,0.92) !important;
+  border-bottom-color: rgba(15,23,42,0.26) !important;
+}
+
+/* Canvas: darker blue-gray grid */
+body.light-mode .topology-canvas,
+body.light-mode .graph-map {
+  background-color: #a6b5c7 !important;
+  background-image:
+    linear-gradient(rgba(15,23,42,0.095) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.095) 1px, transparent 1px) !important;
+}
+
+/* The large outer graph area should not look white */
+body.light-mode .graph-world {
+  background: transparent !important;
+}
+
+/* Gateway banner: muted steel blue */
+body.light-mode .graph-world .gateway-banner {
+  background:
+    linear-gradient(90deg, rgba(137,157,179,0.98), rgba(171,187,205,0.98)),
+    radial-gradient(circle at top left, rgba(14,165,233,0.16), transparent 28rem) !important;
+  border-color: rgba(2,132,199,0.36) !important;
+  box-shadow: 0 16px 34px rgba(15,23,42,0.18) !important;
+}
+
+/* Summary cards: darker and more readable */
+body.light-mode .mini-card,
+body.light-mode pre {
+  background: rgba(188,200,214,0.88) !important;
+  border-color: rgba(15,23,42,0.22) !important;
+  color: #0f172a !important;
+}
+
+body.light-mode .mini-card .num {
+  color: #0369a1 !important;
+}
+
+body.light-mode .mini-card .label {
+  color: #334155 !important;
+}
+
+/* Legend text needs contrast */
+body.light-mode .legend-item {
+  color: #0f172a !important;
+}
+
+body.light-mode p,
+body.light-mode .small-note,
+body.light-mode .legend-note,
+body.light-mode .gateway-banner-subtitle {
+  color: #1e293b !important;
+}
+
+/* Header/top controls */
+body.light-mode button,
+body.light-mode .header-link {
+  color: #0f172a !important;
+  background: rgba(203,213,225,0.40) !important;
+  border-color: rgba(51,65,85,0.34) !important;
+}
+
+body.light-mode button:hover,
+body.light-mode .header-link:hover {
+  background: rgba(226,232,240,0.50) !important;
+  border-color: rgba(51,65,85,0.48) !important;
+}
+
+/* Keep action buttons distinct */
+body.light-mode .header-actions .theme-toggle {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #2563eb, #1d4ed8) !important;
+  border-color: rgba(30,64,175,0.75) !important;
+}
+
+body.light-mode .donate-link {
+  color: #b91c1c !important;
+}
+
+/* Version badges need more contrast */
+body.light-mode .version-badge {
+  color: #0f172a !important;
+  background: rgba(34,197,94,0.20) !important;
+  border-color: rgba(21,128,61,0.40) !important;
+}
+
+body.light-mode .version-badge strong {
+  color: #14532d !important;
+}
+
+/* Status pill */
+body.light-mode .status-pill.good {
+  color: #14532d !important;
+  background: rgba(34,197,94,0.20) !important;
+  border-color: rgba(21,128,61,0.42) !important;
+}
+
+/* Scrollbar */
+body.light-mode .topology-canvas {
+  scrollbar-color: rgba(51,65,85,0.55) rgba(151,168,188,0.80);
+}
+
+body.light-mode .topology-canvas::-webkit-scrollbar-track {
+  background: rgba(151,168,188,0.85) !important;
+}
+
+body.light-mode .topology-canvas::-webkit-scrollbar-thumb {
+  background: rgba(51,65,85,0.48) !important;
+  border-color: rgba(151,168,188,0.90) !important;
+}
+
+/* =========================================================
+   Light mode link visibility fix
+   Make Incus/service and client links visible on blue-gray canvas
+   ========================================================= */
+
+body.light-mode .graph-link {
+  opacity: 1 !important;
+}
+
+body.light-mode .graph-link.incus-link {
+  stroke: rgba(180,83,9,0.72) !important;
+  stroke-width: 1.85 !important;
+}
+
+body.light-mode .graph-link.client-link,
+body.light-mode .graph-link.wifi-client-link {
+  stroke: rgba(51,65,85,0.50) !important;
+  stroke-width: 1.55 !important;
+}
+
+body.light-mode .graph-link.port-link {
+  stroke: rgba(37,99,235,0.62) !important;
+  stroke-width: 1.7 !important;
+}
+
+body.light-mode .graph-link.switch-link {
+  stroke: rgba(22,163,74,0.66) !important;
+  stroke-width: 2.2 !important;
+}
+
+body.light-mode .graph-link.ap-link,
+body.light-mode .graph-link.ssid-link {
+  stroke: rgba(126,34,206,0.60) !important;
+  stroke-width: 1.75 !important;
+}
+
+body.light-mode .graph-link.wan-link {
+  stroke: rgba(185,28,28,0.70) !important;
+  stroke-width: 1.9 !important;
+}
+

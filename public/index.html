@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScottiBYTE UniFi Topology</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>ScottiBYTE UniFi Topology</h1>
+      <p>Switches, ports, access points, SSIDs, and connected clients.</p>
+    </div>
+    <div class="header-actions">
+      <div class="status-pill" id="statusPill">Checking...</div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="side-panel">
+      <section class="panel">
+        <h2>Topology Controls</h2>
+
+        <div class="button-row">
+          <button id="refreshBtn">Refresh</button>
+          <button id="exportBtn">Export HTML</button>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input type="checkbox" id="showWiredClients" checked />
+            Show wired clients
+          </label>
+          <label>
+            <input type="checkbox" id="showWirelessClients" checked />
+            Show wireless clients
+          </label>
+          <label>
+            <input type="checkbox" id="showOtherUnifi" checked />
+            Show other UniFi devices
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Summary</h2>
+        <div id="summaryCards" class="summary-grid">
+          <div class="mini-card">Loading...</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Connection</h2>
+        <pre id="statusOutput">Loading...</pre>
+      </section>
+    </aside>
+
+    <section class="topology-panel">
+      <div class="topology-toolbar">
+        <div>
+          <h2>Live UniFi Topology</h2>
+          <p id="lastRefresh">Waiting for refresh...</p>
+        </div>
+        <div class="toolbar-buttons">
+          <button id="zoomOutBtn">−</button>
+          <button id="zoomInBtn">+</button>
+          <button id="resetViewBtn">Reset View</button>
+          <button id="collapseAllBtn">Collapse All</button>
+          <button id="expandAllBtn">Expand All</button>
+        </div>
+      </div>
+
+      <div id="topologyCanvas" class="topology-canvas">
+        <div class="loading">Loading topology...</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

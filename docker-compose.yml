@@ -1,0 +1,12 @@
+services:
+  unifi-topology:
+    build: .
+    container_name: unifi-topology
+    restart: unless-stopped
+    ports:
+      - "3051:3051"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3051
