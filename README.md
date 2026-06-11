@@ -4,6 +4,10 @@ ScottiBYTE UniFi Topology is a self-hosted web utility for visualizing a UniFi n
 
 It maps the WAN, gateway, switches, access points, port groups, ports, wired clients, wireless clients, SSIDs, and optional Incus service inventory.
 
+## Screenshot
+
+![ScottiBYTE UniFi Topology Dashboard](screenshots/scottibyte-unifi-topology-dashboard.png)
+
 ## Features
 
 - UniFi gateway, switch, AP, port, and client topology mapping
