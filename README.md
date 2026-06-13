@@ -22,7 +22,7 @@ It maps the WAN, gateway, switches, access points, port groups, ports, wired cli
 
 ## Version
 
-Current release: **v1.0.1**
+Current release: **v1.0.2**
 
 ## Requirements
 
@@ -151,6 +151,17 @@ Example:
       scottibyte/unifi-topology:latest
 
 ## Release Notes
+
+### v1.0.2
+
+- Fixed UniFi OS version bubble links so they resolve to the correct hardware-family-specific release page.
+- Added support for UniFi OS release families including Dream Machines, Cloud Gateways, Cloud Keys, Express, Dream Wall, Enterprise Network Video Recorders, and NAS-style UniFi OS devices.
+- Added headless Chromium release lookup fallback to discover the correct UniFi Community release URL when the standard release service does not return a direct result.
+- Added persistent local release URL caching with `data/releaseUrlCache.json`.
+- Improved release-link click speed after the first successful lookup.
+- Prevented older UniFi OS release UUIDs from being reused after a version change by including the version and hardware-family slug in the cache key.
+- Failed release lookups are not cached, allowing the app to retry later if UniFi Community indexing is delayed.
+- Left UniFi authentication/session behavior unchanged.
 
 ### v1.0.1
 

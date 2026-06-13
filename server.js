@@ -1515,7 +1515,7 @@ app.get("/api/status", (req, res) => {
     app: "ScottiBYTE UniFi Topology",
     shortName: "UniFi Topology",
     status: "running",
-    version: "1.0.1",
+    version: "1.0.2",
     port: PORT,
     configLoaded: true,
     unifi: {
