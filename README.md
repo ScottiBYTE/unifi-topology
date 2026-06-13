@@ -150,6 +150,22 @@ Example:
       -v $(pwd)/data:/app/data \
       scottibyte/unifi-topology:latest
 
+# 🌐 Community
+
+## Community Support
+
+Need help with Incus Forge, Docker deployment, Incus profile management, container creation, or ScottiBYTE utilities?
+
+Join the ScottiBYTE Rocket.Chat community:
+
+[Join ScottiBYTE Rocket.Chat](https://go.rocket.chat/invite?host=chat.scottibyte.com&path=invite%2FaCh2oW)
+
+New users can start in `#general`. From there, you can find other ScottiBYTE project channels and community discussions.
+
+For bugs and feature requests, please continue to use GitHub Issues.
+For quick questions and community discussion, use Rocket.Chat.
+```      
+
 ## Release Notes
 
 ### v1.0.2
