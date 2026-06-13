@@ -3,3 +3,8 @@ data/
 .env
 *.log
 public/*.backup-*
+data/config.json
+data/releaseUrlCache.json
+server.js.bak-*
+README.md.bak-*
+.gitignore.bak-*

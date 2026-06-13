@@ -15,6 +15,7 @@ try {
 const app = express();
 
 const CONFIG_PATH = path.join(__dirname, "data", "config.json");
+const RELEASE_URL_CACHE_FILE = path.join(__dirname, "data", "releaseUrlCache.json");
 
 let unifiSession = {
   cookieHeader: null,
@@ -731,19 +732,67 @@ function buildPhysicalTopology(gateway, switches, accessPoints, smartDevices, wi
 
 
 
-function unifiOsReleaseFamilies(context = {}) {
-  const modelText = [
+
+function releaseVersionDash(version) {
+  return String(version || "")
+    .trim()
+    .replace(/^v/i, "")
+    .replace(/\./g, "-");
+}
+
+function getGatewayModelText(context = {}) {
+  return [
     context.gatewayModel,
     context.gatewayModelCode,
     context.gatewayName
   ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function unifiOsReleaseFamily(version, context = {}) {
+  const vDash = releaseVersionDash(version);
+  const modelText = getGatewayModelText(context);
+  const v = String(version || "").trim();
+
+  if (!vDash) return null;
+
+  // UniFi OS release notes are hardware-family specific.
+  // The same UniFi OS version can have different UUIDs for different gateway families.
+  if (modelText.includes("dream wall") || modelText.includes("udw")) {
+    return {
+      slug: `UniFi-OS-Dream-Wall-${vDash}`,
+      title: `UniFi OS - Dream Wall ${v}`
+    };
+  }
 
   if (
-    modelText.includes("udm") ||
-    modelText.includes("dream") ||
-    modelText.includes("udmea4c")
+    modelText.includes("unvr") ||
+    modelText.includes("network video recorder") ||
+    modelText.includes("enterprise network video")
   ) {
-    return ["unifi-os/dream-machines", "unifi-os-dream-machines", "dream-machines"];
+    return {
+      slug: `UniFi-OS-Enterprise-Network-Video-Recorders-${vDash}`,
+      title: `UniFi OS - Enterprise Network Video Recorders ${v}`
+    };
+  }
+
+  if (
+    modelText.includes("nas") ||
+    modelText.includes("network attached storage")
+  ) {
+    return {
+      slug: `UniFi-OS-Network-Attached-Storage-${vDash}`,
+      title: `UniFi OS - Network Attached Storage ${v}`
+    };
+  }
+
+  if (
+    modelText.includes("uck") ||
+    modelText.includes("cloud key")
+  ) {
+    return {
+      slug: `UniFi-OS-Cloud-Keys-${vDash}`,
+      title: `UniFi OS - Cloud Keys ${v}`
+    };
   }
 
   if (
@@ -751,27 +800,40 @@ function unifiOsReleaseFamilies(context = {}) {
     modelText.includes("uxg") ||
     modelText.includes("cloud gateway")
   ) {
-    return ["unifi-os/cloud-gateways", "cloud-gateways"];
+    return {
+      slug: `UniFi-OS-Cloud-Gateways-${vDash}`,
+      title: `UniFi OS - Cloud Gateways ${v}`
+    };
   }
 
-  if (modelText.includes("uck") || modelText.includes("cloud key")) {
-    return ["unifi-os/cloud-keys", "cloud-keys"];
+  if (
+    modelText.includes("ux") ||
+    modelText.includes("express")
+  ) {
+    return {
+      slug: `UniFi-OS-Express-${vDash}`,
+      title: `UniFi OS - Express ${v}`
+    };
   }
 
-  if (modelText.includes("ux") || modelText.includes("express")) {
-    return ["unifi-os/express", "express"];
+  if (
+    modelText.includes("udm") ||
+    modelText.includes("dream") ||
+    modelText.includes("udmea") ||
+    modelText.includes("udmea4c")
+  ) {
+    return {
+      slug: `UniFi-OS-Dream-Machines-${vDash}`,
+      title: `UniFi OS - Dream Machines ${v}`
+    };
   }
 
-  return [
-    "unifi-os/dream-machines",
-    "unifi-os/cloud-gateways",
-    "unifi-os/cloud-keys",
-    "unifi-os/express",
-    "unifi-os-dream-machines",
-    "cloud-gateways",
-    "cloud-keys",
-    "express"
-  ];
+  // Scott's gateway is Dream Machine-class, so this fallback is preferable
+  // to resolving to the wrong UniFi OS family.
+  return {
+    slug: `UniFi-OS-Dream-Machines-${vDash}`,
+    title: `UniFi OS - Dream Machines ${v}`
+  };
 }
 
 function releaseSvcPaths(appName, version, context = {}) {
@@ -780,12 +842,13 @@ function releaseSvcPaths(appName, version, context = {}) {
 
   const encoded = encodeURIComponent(v);
 
+  // community.svc.ui.com no longer works reliably for UniFi OS family lookups.
+  // Keep it only for app release lookups.
   const map = {
     network: ["network"],
     protect: ["protect"],
     talk: ["talk"],
-    access: ["access"],
-    unifiOS: unifiOsReleaseFamilies(context)
+    access: ["access"]
   };
 
   return (map[appName] || [])
@@ -793,57 +856,12 @@ function releaseSvcPaths(appName, version, context = {}) {
 }
 
 function unifiOsReleaseTitleSlugs(version, context = {}) {
-  const vDash = String(version || "")
-    .trim()
-    .replace(/^v/i, "")
-    .replace(/\./g, "-");
-
-  if (!vDash) return [];
-
-  const modelText = [
-    context.gatewayModel,
-    context.gatewayModelCode,
-    context.gatewayName
-  ].filter(Boolean).join(" ").toLowerCase();
-
-  if (modelText.includes("uck") || modelText.includes("cloud key")) {
-    return [`UniFi-OS-Cloud-Keys-${vDash}`];
-  }
-
-  if (
-    modelText.includes("ucg") ||
-    modelText.includes("uxg") ||
-    modelText.includes("cloud gateway")
-  ) {
-    return [`UniFi-OS-Cloud-Gateways-${vDash}`];
-  }
-
-  if (modelText.includes("ux") || modelText.includes("express")) {
-    return [`UniFi-OS-Express-${vDash}`];
-  }
-
-  if (
-    modelText.includes("udm") ||
-    modelText.includes("dream") ||
-    modelText.includes("udmea4c")
-  ) {
-    return [`UniFi-OS-Dream-Machines-${vDash}`];
-  }
-
-  return [
-    `UniFi-OS-Dream-Machines-${vDash}`,
-    `UniFi-OS-Cloud-Gateways-${vDash}`,
-    `UniFi-OS-Cloud-Keys-${vDash}`,
-    `UniFi-OS-Express-${vDash}`
-  ];
+  const family = unifiOsReleaseFamily(version, context);
+  return family ? [family.slug] : [];
 }
 
 function browserReleaseTitleSlug(appName, version, context = {}) {
-  const vDash = String(version || "")
-    .trim()
-    .replace(/^v/i, "")
-    .replace(/\./g, "-");
-
+  const vDash = releaseVersionDash(version);
   if (!vDash) return "";
 
   if (appName === "unifiOS") {
@@ -859,7 +877,6 @@ function browserReleaseTitleSlug(appName, version, context = {}) {
 
   return map[appName] || "";
 }
-
 
 function withTimeout(promise, ms, fallback = null) {
   return Promise.race([
@@ -889,20 +906,64 @@ function chromiumExecutablePath() {
   return candidates[0] || "/usr/bin/chromium";
 }
 
+function normalizeReleaseText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function canonicalReleaseUrl(rawHref, slug) {
+  if (!rawHref || !slug) return null;
+
+  let url;
+  try {
+    url = new URL(rawHref, "https://community.ui.com");
+  } catch {
+    return null;
+  }
+
+  if (url.hash && url.hash.includes("comment")) return null;
+
+  const uuidMatch = url.pathname.match(/\/releases\/(?:[^/]+\/)?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);
+  if (!uuidMatch) return null;
+
+  return `https://community.ui.com/releases/${slug}/${uuidMatch[1]}`;
+}
+
 async function resolveReleaseUrlWithHeadlessBrowser(appName, version, context = {}) {
   if (!puppeteer) return null;
 
-  const slugs = appName === "unifiOS"
-    ? unifiOsReleaseTitleSlugs(version, context)
-    : [browserReleaseTitleSlug(appName, version, context)].filter(Boolean);
-
-  if (!slugs.length) return null;
-
-  const cacheKey = `${appName}:${String(version || "").trim()}:${String(context.gatewayModelCode || "")}`;
+  const cacheKey = `${appName}:${String(version || "").trim()}:${getGatewayModelText(context)}`;
   const cached = headlessReleaseCache[cacheKey];
 
   if (cached && Date.now() - cached.ts < HEADLESS_RELEASE_CACHE_MS) {
     return cached.url;
+  }
+
+  let targets = [];
+
+  if (appName === "unifiOS") {
+    const family = unifiOsReleaseFamily(version, context);
+    if (!family) return null;
+    targets = [family];
+  } else {
+    const slug = browserReleaseTitleSlug(appName, version, context);
+    if (!slug) return null;
+
+    const titleMap = {
+      network: `UniFi Network Application ${String(version).trim()}`,
+      protect: `UniFi Protect Application ${String(version).trim()}`,
+      talk: `UniFi Talk Application ${String(version).trim()}`,
+      access: `UniFi Access Application ${String(version).trim()}`
+    };
+
+    targets = [{
+      slug,
+      title: titleMap[appName] || slug.replace(/-/g, " ")
+    }];
   }
 
   let browser = null;
@@ -932,57 +993,97 @@ async function resolveReleaseUrlWithHeadlessBrowser(appName, version, context = 
     });
 
     const page = await browser.newPage();
+    await page.setViewport({ width: 1600, height: 1000 });
 
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " +
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     );
 
-    for (const slug of slugs) {
-      const searchUrl = `https://community.ui.com/releases?q=${encodeURIComponent(slug)}`;
+    for (const target of targets) {
+      const expectedNormalized = normalizeReleaseText(target.title);
 
-      await page.goto(searchUrl, {
+      await page.goto("https://community.ui.com/releases", {
         waitUntil: "networkidle2",
         timeout: 45000
       });
 
-      try {
-        await page.waitForFunction(
-          targetSlug => {
-            return Array.from(document.querySelectorAll("a[href*='/releases/']"))
-              .some(a => String(a.href || "").includes(`/releases/${targetSlug}/`));
-          },
-          { timeout: 25000 },
-          slug
+      await new Promise(resolve => setTimeout(resolve, 4000));
+
+      await page.focus("input[type='search']");
+      await page.keyboard.down("Control");
+      await page.keyboard.press("A");
+      await page.keyboard.up("Control");
+      await page.keyboard.press("Backspace");
+      await page.keyboard.type(target.title, { delay: 35 });
+
+      await new Promise(resolve => setTimeout(resolve, 12000));
+
+      const href = await page.evaluate(expectedNormalized => {
+        const normalize = value => String(value || "")
+          .toLowerCase()
+          .replace(/&/g, " and ")
+          .replace(/[^a-z0-9]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        const uuidRelease = href =>
+          /\/releases\/(?:[^/]+\/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(href || "").split("#")[0]);
+
+        const candidates = Array.from(document.querySelectorAll("a[href*='/releases/']"))
+          .map(a => {
+            const card = a.closest("article, li, section, div");
+            const ownText = [
+              a.innerText,
+              a.textContent,
+              a.getAttribute("aria-label"),
+              a.getAttribute("title")
+            ].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+
+            const cardText = card
+              ? String(card.innerText || "").replace(/\s+/g, " ").trim()
+              : "";
+
+            return {
+              href: String(a.href || "").split("#")[0],
+              normalizedOwnText: normalize(ownText),
+              normalizedCardText: normalize(cardText)
+            };
+          })
+          .filter(item =>
+            item.href &&
+            !item.href.includes("#comment") &&
+            uuidRelease(item.href)
+          );
+
+        let exact = candidates.find(item =>
+          item.normalizedOwnText === expectedNormalized ||
+          item.normalizedOwnText.startsWith(`${expectedNormalized} `) ||
+          item.normalizedCardText === expectedNormalized ||
+          item.normalizedCardText.startsWith(`${expectedNormalized} `)
         );
-      } catch {
-        // Continue and inspect whatever rendered.
+
+        if (exact) return exact.href;
+
+        exact = candidates.find(item =>
+          item.normalizedCardText.includes(expectedNormalized)
+        );
+
+        return exact ? exact.href : null;
+      }, expectedNormalized);
+
+      const cleanUrl = canonicalReleaseUrl(href, target.slug);
+
+      if (cleanUrl) {
+        console.log(`Resolved ${appName} ${version} release URL: ${cleanUrl}`);
+
+        headlessReleaseCache[cacheKey] = {
+          ts: Date.now(),
+          url: cleanUrl
+        };
+
+        return cleanUrl;
       }
-
-      const href = await page.evaluate(targetSlug => {
-        const links = Array.from(document.querySelectorAll("a[href*='/releases/']"))
-          .map(a => String(a.href || ""));
-
-        return links.find(h =>
-          h.includes(`/releases/${targetSlug}/`) &&
-          /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}([?#]|$)/i.test(h)
-        ) || null;
-      }, slug);
-
-      if (!href) continue;
-
-      const url = new URL(href);
-      url.search = "";
-      url.hash = "";
-
-      const cleanUrl = url.toString();
-
-      headlessReleaseCache[cacheKey] = {
-        ts: Date.now(),
-        url: cleanUrl
-      };
-
-      return cleanUrl;
     }
 
     return null;
@@ -1000,7 +1101,77 @@ async function resolveReleaseUrlWithHeadlessBrowser(appName, version, context = 
   }
 }
 
+function loadReleaseUrlCache() {
+  try {
+    if (!fs.existsSync(RELEASE_URL_CACHE_FILE)) return {};
+    return JSON.parse(fs.readFileSync(RELEASE_URL_CACHE_FILE, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+function saveReleaseUrlCache(cache) {
+  try {
+    fs.writeFileSync(RELEASE_URL_CACHE_FILE, JSON.stringify(cache, null, 2));
+  } catch {
+    // Ignore cache write failures.
+  }
+}
+
+function releaseCacheKeys(appName, version, context = {}) {
+  const v = String(version || "").trim();
+
+  if (appName === "unifiOS") {
+    const family = unifiOsReleaseFamily(version, context);
+
+    if (!family?.slug) {
+      return [];
+    }
+
+    // UniFi OS release URLs are hardware-family specific.
+    return [`${appName}:${v}:${family.slug}`];
+  }
+
+  return [`${appName}:${v}`];
+}
+
+function getCachedReleaseUrl(appName, version, context = {}) {
+  const cache = loadReleaseUrlCache();
+
+  for (const key of releaseCacheKeys(appName, version, context)) {
+    const entry = cache[key];
+
+    if (typeof entry === "string" && entry.includes("community.ui.com/releases")) {
+      return entry;
+    }
+
+    if (entry?.url && entry.url.includes("community.ui.com/releases")) {
+      return entry.url;
+    }
+  }
+
+  return null;
+}
+
+function putCachedReleaseUrl(appName, version, context = {}, url) {
+  if (!url || !url.includes("community.ui.com/releases")) return;
+
+  const cache = loadReleaseUrlCache();
+
+  for (const key of releaseCacheKeys(appName, version, context)) {
+    cache[key] = {
+      url,
+      ts: Date.now()
+    };
+  }
+
+  saveReleaseUrlCache(cache);
+}
+
 async function resolveReleaseUrl(appName, version, context = {}) {
+  const cachedUrl = getCachedReleaseUrl(appName, version, context);
+  if (cachedUrl) return cachedUrl;
+
   const candidates = releaseSvcPaths(appName, version, context);
 
   for (const svcUrl of candidates) {
@@ -1011,26 +1182,39 @@ async function resolveReleaseUrl(appName, version, context = {}) {
       });
 
       if (response.data?.url && response.data.url.includes("community.ui.com/releases")) {
+        putCachedReleaseUrl(appName, version, context, response.data.url);
         return response.data.url;
       }
 
       if (typeof response.data === "string" && response.data.includes("community.ui.com/releases")) {
         const match = response.data.match(/https:\/\/community\.ui\.com\/releases\/[^"'\s<>]+/);
-        if (match) return match[0];
+        if (match) {
+          putCachedReleaseUrl(appName, version, context, match[0]);
+          return match[0];
+        }
       }
     } catch {
       // Try the next candidate.
     }
   }
 
-  // Headless browser lookup is useful, but must never make the UI spin forever.
   const exactUrl = await withTimeout(
     resolveReleaseUrlWithHeadlessBrowser(appName, version, context),
     30000,
     null
   );
 
-  if (exactUrl) return exactUrl;
+  if (exactUrl) {
+    putCachedReleaseUrl(appName, version, context, exactUrl);
+    return exactUrl;
+  }
+
+  if (appName === "unifiOS") {
+    const family = unifiOsReleaseFamily(version, context);
+    if (family) {
+      return `https://community.ui.com/releases?q=${encodeURIComponent(family.title)}`;
+    }
+  }
 
   const fallbackSlug = browserReleaseTitleSlug(appName, version, context);
   if (fallbackSlug) {
