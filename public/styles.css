@@ -1490,3 +1490,117 @@ body.light-mode .graph-link.wan-link {
   stroke-width: 1.9 !important;
 }
 
+
+
+/* =========================================================
+   Full screen topology map
+   ========================================================= */
+
+.topology-panel:fullscreen,
+.topology-panel.map-fullscreen-active:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+}
+
+.topology-panel:fullscreen .topology-toolbar {
+  flex: 0 0 auto;
+}
+
+.topology-panel:fullscreen .topology-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+body.map-fullscreen-fallback {
+  overflow: hidden;
+}
+
+body.map-fullscreen-fallback .topology-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+}
+
+body.map-fullscreen-fallback .topology-toolbar {
+  flex: 0 0 auto;
+}
+
+body.map-fullscreen-fallback .topology-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+
+/* =========================================================
+   Topology toolbar layout polish
+   ========================================================= */
+
+.topology-toolbar {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.topology-toolbar > div:first-child {
+  flex: 0 0 520px;
+  max-width: 520px;
+}
+
+.toolbar-buttons {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-buttons button {
+  white-space: nowrap;
+}
+
+#fullScreenMapBtn.fullscreen-exit-button {
+  border-color: rgba(245,158,11,0.9);
+  background: rgba(245,158,11,0.24);
+  color: #fde68a;
+  box-shadow: 0 0 0 2px rgba(245,158,11,0.18), 0 0 18px rgba(245,158,11,0.18);
+}
+
+#fullScreenMapBtn.fullscreen-exit-button:hover {
+  background: rgba(245,158,11,0.34);
+  border-color: rgba(251,191,36,1);
+}
+
+@media (max-width: 1400px) {
+  .topology-toolbar > div:first-child {
+    flex-basis: 420px;
+    max-width: 420px;
+  }
+
+  .toolbar-buttons {
+    gap: 0.42rem;
+  }
+
+  .toolbar-buttons button {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+}
+
+/* Keep the Incus service toggle from jumping when its label changes */
+#toggleServicesBtn {
+  width: 158px;
+  min-width: 158px;
+  text-align: center;
+  white-space: nowrap;
+  flex: 0 0 158px;
+}

@@ -99,7 +99,7 @@ function setupHeaderActions() {
 
   actions.innerHTML = `
     <a class="header-link github-link" href="${APP_LINKS.github}" target="_blank" rel="noopener noreferrer" title="Open GitHub repository">
-      GitHub v1.0.2
+      GitHub v1.1.0
     </a>
     <a class="header-link donate-link" href="${APP_LINKS.donate}" target="_blank" rel="noopener noreferrer" title="Support ScottiBYTE">
       ❤ Donate
@@ -155,10 +155,10 @@ function updateServiceInventoryButton() {
 
   button.style.display = "";
 
-  button.textContent = showServiceInventory ? "Remove Incus Services" : "Add Incus Services";
+  button.textContent = showServiceInventory ? "Hide Incus Services" : "Show Incus Services";
   button.title = showServiceInventory
-    ? "Remove the optional Incus service inventory overlay."
-    : "Add the optional Incus service inventory overlay.";
+    ? "Hide the optional Incus / Blast Radius service overlay."
+    : "Show the optional Incus / Blast Radius service overlay.";
   button.classList.toggle("service-toggle-active", showServiceInventory);
 }
 
@@ -1888,6 +1888,13 @@ function buildExportHtml(data) {
 
   <h2>All Wireless Clients</h2>
   ${exportClientRows(data.wirelessClients || [])}
+  <script>
+    window.addEventListener("load", () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollLeft = 0;
+      document.body.scrollLeft = 0;
+    });
+  </script>
 </body>
 </html>`;
 }
@@ -1903,10 +1910,210 @@ function exportHtml() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "unifi-topology-documentation.html";
+  a.download = "unifi-topology-device-report.html";
   a.click();
   URL.revokeObjectURL(url);
 }
+
+function collectInlineStyles() {
+  let cssText = "";
+
+  for (const sheet of Array.from(document.styleSheets || [])) {
+    try {
+      for (const rule of Array.from(sheet.cssRules || [])) {
+        cssText += rule.cssText + "\n";
+      }
+    } catch (err) {
+      // Ignore stylesheets the browser refuses to expose.
+    }
+  }
+
+  return cssText;
+}
+
+function buildMapExportHtml() {
+  const world = document.getElementById("topologyWorld");
+  if (!world) {
+    alert("Topology map has not rendered yet.");
+    return null;
+  }
+
+  const clone = world.cloneNode(true);
+
+  // Export the full expanded/collapsed map state without preserving the live viewport pan.
+  clone.style.transform = "none";
+  clone.style.left = "0";
+  clone.style.top = "0";
+
+  const themeClass = document.body.classList.contains("light-mode") ? "light-mode" : "";
+  const generated = new Date().toLocaleString();
+  const styles = collectInlineStyles();
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScottiBYTE UniFi Topology Map Export</title>
+  <style>
+${styles}
+
+    body {
+      margin: 0;
+      padding: 1.25rem;
+      background: #020617;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: auto;
+    }
+
+    body.light-mode {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .map-export-header {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid rgba(56,189,248,0.28);
+      border-radius: 16px;
+      background: rgba(15,23,42,0.88);
+    }
+
+    body.light-mode .map-export-header {
+      background: #ffffff;
+      border-color: rgba(15,23,42,0.16);
+    }
+
+    .map-export-header h1 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.25rem;
+    }
+
+    .map-export-header p {
+      margin: 0;
+      color: #94a3b8;
+    }
+
+    body.light-mode .map-export-header p {
+      color: #475569;
+    }
+
+    .map-export-canvas {
+      overflow: visible;
+      display: inline-block;
+      width: max-content;
+      min-width: max-content;
+      padding: 1.25rem;
+      border: 1px solid rgba(56,189,248,0.24);
+      border-radius: 16px;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      background-color: rgba(2,6,23,0.44);
+    }
+
+    body.light-mode .map-export-canvas {
+      background-color: #f8fafc;
+      background-image:
+        linear-gradient(rgba(15,23,42,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.06) 1px, transparent 1px);
+    }
+
+    .map-export-canvas .topology-world {
+      transform: none !important;
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
+      margin: 0 !important;
+    }
+
+    .map-export-canvas .graph-world {
+      transform: none !important;
+      overflow: visible !important;
+    }
+
+    .map-export-canvas .graph-map {
+      overflow: visible !important;
+    }
+
+    button {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="${themeClass}">
+  <div class="map-export-header">
+    <h1>ScottiBYTE UniFi Topology Map</h1>
+    <p>Exported ${documentEscape(generated)}. This export preserves the current expanded/collapsed topology map state.</p>
+  </div>
+
+  <div class="map-export-canvas">
+    ${clone.outerHTML}
+  </div>
+</body>
+</html>`;
+}
+
+function exportMapHtml() {
+  const html = buildMapExportHtml();
+  if (!html) return;
+
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "unifi-topology-map.html";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function updateFullScreenMapButton() {
+  const btn = document.getElementById("fullScreenMapBtn");
+  if (!btn) return;
+
+  const active = document.fullscreenElement || document.body.classList.contains("map-fullscreen-fallback");
+  btn.textContent = active ? "Exit Full Screen" : "Full Screen Map";
+  btn.classList.toggle("fullscreen-exit-button", !!active);
+}
+
+function toggleFullScreenMap() {
+  const panel = document.querySelector(".topology-panel");
+  if (!panel) return;
+
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+    return;
+  }
+
+  if (document.body.classList.contains("map-fullscreen-fallback")) {
+    document.body.classList.remove("map-fullscreen-fallback");
+    panel.classList.remove("map-fullscreen-active");
+    updateFullScreenMapButton();
+    return;
+  }
+
+  panel.classList.add("map-fullscreen-active");
+
+  if (panel.requestFullscreen) {
+    panel.requestFullscreen().catch(() => {
+      document.body.classList.add("map-fullscreen-fallback");
+      updateFullScreenMapButton();
+    });
+  } else {
+    document.body.classList.add("map-fullscreen-fallback");
+    updateFullScreenMapButton();
+  }
+}
+
+document.addEventListener("fullscreenchange", () => {
+  const panel = document.querySelector(".topology-panel");
+  if (panel && !document.fullscreenElement) {
+    panel.classList.remove("map-fullscreen-active");
+  }
+  updateFullScreenMapButton();
+});
 
 document.getElementById("refreshBtn").addEventListener("click", refresh);
 document.getElementById("exportBtn").addEventListener("click", exportHtml);
@@ -1914,6 +2121,8 @@ document.getElementById("exportBtn").addEventListener("click", exportHtml);
 document.getElementById("zoomOutBtn").addEventListener("click", () => zoomAtCenter(0.85));
 document.getElementById("zoomInBtn").addEventListener("click", () => zoomAtCenter(1.15));
 document.getElementById("resetViewBtn").addEventListener("click", resetView);
+document.getElementById("fullScreenMapBtn").addEventListener("click", toggleFullScreenMap);
+document.getElementById("exportMapBtn").addEventListener("click", exportMapHtml);
 
 const expandAllButton = document.getElementById("expandAllBtn");
 
@@ -1954,14 +2163,23 @@ if (expandAllButton && !document.getElementById("toggleServicesBtn")) {
     showServiceInventory = !showServiceInventory;
     updateServiceInventoryButton();
 
-    // Services live below expanded ports / client branches.
-    // If the user asks to show services, move into client-expanded mode
-    // so the service layer is actually visible instead of hidden behind
-    // collapsed physical-map port groups.
-    graphExpansionMode = "clients";
-    collapsedGraphNodes.clear();
-    collapsedBranches.clear();
-    branchUserTouched.clear();
+    if (showServiceInventory) {
+      // Add the optional Incus / Blast Radius service overlay, but do not
+      // automatically explode the topology. Scott's preferred workflow is:
+      // Add Incus Services, then selectively expand only the branches of interest.
+      restoreDefaultTopologyView();
+    } else {
+      // Removing the service overlay should not otherwise disturb the current map mode.
+      collapsedGraphNodes.clear();
+      collapsedBranches.clear();
+      branchUserTouched.clear();
+
+      [
+        "possibleUnifiHardwareClients",
+        "wiredClients",
+        "wirelessClients"
+      ].forEach(id => collapsedBranches.add(id));
+    }
 
     if (latestTopology) renderTopology(latestTopology);
     resetView();

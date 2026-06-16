@@ -22,7 +22,7 @@ It maps the WAN, gateway, switches, access points, port groups, ports, wired cli
 
 ## Version
 
-Current release: **v1.0.2**
+Current release: **v1.1.0**
 
 ## Requirements
 
@@ -167,6 +167,16 @@ For quick questions and community discussion, use Rocket.Chat.
     
 ## Release Notes
 
+### v1.1.0
+
+- Added full screen topology map mode.
+- Added a separate topology map HTML export that preserves the current expanded/collapsed map state.
+- Renamed the original export option to **Export Device Report** to distinguish it from the visual map export.
+- Added **Show Incus Services** / **Hide Incus Services** overlay controls when Incus inventory is configured.
+- Changed the Incus services overlay so it no longer automatically expands the topology.
+- Improved toolbar layout and highlighted the full screen exit control.
+- Fixed exported topology map clipping/scroll positioning.
+
 ### v1.0.2
 
 - Fixed UniFi OS version bubble links so they resolve to the correct hardware-family-specific release page.
@@ -207,3 +217,10 @@ Highlights:
 - Adds UniFi release-note links.
 - Adds HTML export.
 - Adds summary and legend panels.
+
+## v1.1.0 Screenshot
+
+### Full screen topology with Incus services overlay
+
+![ScottiBYTE UniFi Topology Full Screen Incus Services](screenshots/scottibyte-unifi-topology-v110-fullscreen-incus.png)
+
