@@ -22,7 +22,7 @@ It maps the WAN, gateway, switches, access points, port groups, ports, wired cli
 
 ## Version
 
-Current release: **v1.1.0**
+Current release: **v1.1.1**
 
 ## Requirements
 
@@ -166,6 +166,16 @@ For bugs and feature requests, please continue to use GitHub Issues.
 For quick questions and community discussion, use Rocket.Chat.
     
 ## Release Notes
+
+### v1.1.1
+
+- Added generalized detection for UniFi gateway families.
+- Added support for the `uxg` device type reported for independently managed gateways such as the UXG-Lite.
+- Added model-family recognition for Dream Machine, Dream Router, Dream Wall, Cloud Gateway, UXG, Enterprise Fortress Gateway, and UniFi Express devices.
+- Added fallback gateway detection using WAN and gateway system-statistics fields.
+- Updated gateway model formatting for unfamiliar API device types.
+- Preserved existing gateway, switch, access point, SmartPower, client, topology, and authentication behavior.
+- No configuration changes are required.
 
 ### v1.1.0
 
