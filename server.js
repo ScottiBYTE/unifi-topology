@@ -352,6 +352,57 @@ function rawDeviceModel(device) {
   return firstNonEmpty(device.model, device.model_name, device.model_in_lts, "Unknown Model");
 }
 
+function isGatewayType(deviceType) {
+  const type = String(deviceType || "").trim().toLowerCase();
+
+  return new Set([
+    "ugw",
+    "udm",
+    "uxg",
+    "ucg",
+    "udr",
+    "udw",
+    "efg",
+    "ux",
+    "gateway"
+  ]).has(type);
+}
+
+function isGatewayModel(modelCode) {
+  const model = String(modelCode || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+  if (!model) return false;
+
+  const gatewayFamilyPrefixes = [
+    "udm",
+    "udr",
+    "udw",
+    "ucg",
+    "uxg",
+    "efg"
+  ];
+
+  if (gatewayFamilyPrefixes.some(prefix => model.startsWith(prefix))) {
+    return true;
+  }
+
+  // UniFi Express model codes include UX and UX followed by a generation.
+  return model === "ux" || /^ux\d/.test(model);
+}
+
+function hasGatewayCapabilities(device) {
+  return Boolean(
+    device?.wan1 ||
+    device?.wan2 ||
+    device?.wan_ip ||
+    device?.gw_system_stats ||
+    device?.["gw_system-stats"]
+  );
+}
+
 function friendlyModelName(modelCode, deviceType = null) {
   const code = String(modelCode || "").trim();
   const normalized = code.toLowerCase();
@@ -409,9 +460,13 @@ function friendlyModelName(modelCode, deviceType = null) {
     "up1": "UniFi SmartPower Plug"
   };
 
+  const gatewayLike =
+    isGatewayType(deviceType) ||
+    isGatewayModel(code);
+
   let friendly = null;
 
-  if (deviceType === "ugw" || deviceType === "udm") {
+  if (gatewayLike) {
     friendly = gatewayModelMap[normalized];
   }
 
@@ -420,7 +475,7 @@ function friendlyModelName(modelCode, deviceType = null) {
   }
 
   if (friendly) return `${friendly} (${code})`;
-  if (deviceType === "ugw" || deviceType === "udm") return `UniFi Gateway (${code || "Unknown Model"})`;
+  if (gatewayLike) return `UniFi Gateway (${code || "Unknown Model"})`;
 
   return code || "Unknown Model";
 }
@@ -450,7 +505,11 @@ function deviceStatus(device) {
 }
 
 function isGateway(device) {
-  return device.type === "ugw" || device.type === "udm";
+  return (
+    isGatewayType(device?.type) ||
+    isGatewayModel(rawDeviceModel(device)) ||
+    hasGatewayCapabilities(device)
+  );
 }
 
 function isSwitch(device) {
